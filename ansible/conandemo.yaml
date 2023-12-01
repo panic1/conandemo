@@ -1,0 +1,42 @@
+---
+- name: install the conan demo pre-requisites
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: install apt packages
+      become: yes
+      apt:
+        name:
+          - ansible
+          - build-essential
+          - git
+          - pipx
+          - vim
+
+    - name: install snap packages
+      become: yes
+      snap:
+        name:
+         - code
+         - docker
+         - gitkraken
+
+    - name: install pipx packages
+      community.general.pipx:
+        name: conan
+
+    - name: Create portainer container
+      become: yes
+      docker_container:
+        name: portainer
+        image: portainer/portainer-ce
+        state: started
+        recreate: yes
+        restart_policy: always
+        published_ports:
+          - "8000:8000"
+          - "9000:9000"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - portainer_data:/data
